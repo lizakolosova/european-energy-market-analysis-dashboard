@@ -1,0 +1,12 @@
+2030 Renewable Targets Progress
+======================================================================
+
+country_name  current_renewable_pct  target_2030_pct  gap_to_target  avg_growth_rate  required_growth_rate target_status  projected_2030_pct
+      Sweden                  51.32             65.0          13.68            -1.14                  2.28        BEHIND                44.5
+      Poland                  13.04             32.0          18.95             1.29                  3.16        BEHIND                20.8
+       Italy                  20.93             40.0          19.07             2.08                  3.18        BEHIND                33.4
+       Spain                  25.86             48.0          22.14             1.04                  3.69        BEHIND                32.1
+      France                  16.46             40.0          23.54             0.60                  3.92        BEHIND                20.1
+     Germany                  23.97             50.0          26.03             0.36                  4.34        BEHIND                26.2
+ Netherlands                  18.12             45.0          26.88             1.49                  4.48        BEHIND                27.1
+     Belgium                  11.45             42.5          31.05            -0.69                  5.17        BEHIND                 7.3
