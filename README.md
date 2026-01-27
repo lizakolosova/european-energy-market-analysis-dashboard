@@ -21,6 +21,9 @@ This project analyzes European energy markets to identify trends in renewable ad
 ![img_5.png](dashboard/img_5.png)
 ![img_6.png](dashboard/img_6.png)
 
+## Structure:
+![img.png](dashboard/structure.png)
+
 ## Key Insights
 
 ### 1. Netherlands Leading Fossil Fuel Reduction
@@ -173,6 +176,7 @@ Data sourced from [Our World in Data - Energy Dataset](https://github.com/owid/e
 - Energy Institute Statistical Review
 - Ember Yearly Electricity Data
 - Eurostat
+  (download the owid-energy-data.csv and put it in data/raw/ folder before running the project.)
 
 **Coverage**: 8 EU countries, 2020-2024, 40 data points, 299 production records
 
