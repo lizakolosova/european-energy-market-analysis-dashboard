@@ -1,4 +1,4 @@
-Renewable Energy Analysis
+Renewable Energy Metrics
 ======================================================================
 
 country_name  year  renewable_pct  consumption_twh  solar_twh  wind_twh  hydro_twh  total_renewable_twh

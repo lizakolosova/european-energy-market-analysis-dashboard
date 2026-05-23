@@ -3,13 +3,13 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import sqlite3
-from datetime import datetime
+from config import DB_PATH, TARGETS_2030
 
 st.set_page_config(page_title="EU Energy Dashboard", page_icon="⚡", layout="wide")
 
 @st.cache_data
 def load_data():
-    conn = sqlite3.connect('data/energy.db')
+    conn = sqlite3.connect(DB_PATH)
     
     renewable = pd.read_sql('SELECT * FROM renewable_energy', conn)
     consumption = pd.read_sql('SELECT * FROM energy_consumption', conn)
@@ -76,9 +76,8 @@ col1, col2, col3, col4 = st.columns(4)
 with col1:
     avg_renewable = filtered_renewable['renewable_percentage'].mean()
     st.metric(
-        "Avg Renewable %", 
+        "Avg Renewable %",
         f"{avg_renewable:.1f}%",
-        delta=f"{avg_renewable - 15:.1f}% vs 15% baseline"
     )
 
 with col2:
@@ -239,10 +238,7 @@ with tab3:
 with tab4:
     st.subheader("2030 Climate Targets Progress")
     
-    targets = {
-        'BEL': 42.5, 'FRA': 40.0, 'NLD': 45.0, 'DEU': 50.0,
-        'POL': 32.0, 'ESP': 48.0, 'ITA': 40.0, 'SWE': 65.0
-    }
+    targets = TARGETS_2030
     
     latest_year = filtered_renewable['year'].max()
     latest_data = filtered_renewable[filtered_renewable['year'] == latest_year].copy()
@@ -303,20 +299,20 @@ insights_col1, insights_col2 = st.columns(2)
 with insights_col1:
     st.markdown("""
     **Main Findings:**
-    - Netherlands achieved largest fossil fuel reduction (29.5%)
-    - Germany dominates renewable production (222 TWh in 2023)
-    - Belgium ranks last among Western neighbors (11.5% renewable)
-    - All countries behind 2030 targets at current growth rates
+    - Netherlands: fossil share 69.8% → 49.2% (2020–2023), a 20.6 pp reduction, largest among 8 countries
+    - Germany generated 222.6 TWh renewable in 2023 (~3× any neighbor); per capita: Netherlands 2.82, Germany 2.42, Belgium 2.01, France 1.04 TWh/M
+    - Belgium's renewable share declining (−0.7%/yr); projects to 7.3% by 2030 vs 42.5% target (needs +5.2%/yr)
+    - All 8 countries classified BEHIND 2030 targets at current growth rates
     """)
 
 with insights_col2:
     st.markdown("""
     **Statistical Insights:**
-    - Strong correlation between wind capacity and renewable %
-    - No correlation between total consumption and renewables
-    - Belgium needs 7x acceleration to meet 2030 commitments
-    - Wind power drives success more than solar
+    - Strong correlation between wind capacity and overall renewable %
+    - No significant correlation between total consumption and renewable adoption
+    - Belgium needs ~7× acceleration in growth rate to meet 2030 commitments
+    - Wind power drives renewable success more than solar across all 8 countries
     """)
 
 st.markdown("---")
-st.caption(f"Data: Our World in Data (2020-2024) | Last updated: {datetime.now().strftime('%Y-%m-%d')}")
+st.caption("Data coverage: 2020–2024 · Source: Our World in Data")

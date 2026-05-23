@@ -2,9 +2,7 @@ import sqlite3
 import pandas as pd
 import os
 from pathlib import Path
-
-DB_PATH = "data/energy.db"
-RAW_DATA_PATH = "data/raw"
+from config import COUNTRIES, START_YEAR, END_YEAR, DB_PATH, RAW_CSV_PATH
 
 
 def create_database():
@@ -13,7 +11,8 @@ def create_database():
 
     conn = sqlite3.connect(DB_PATH)
 
-    with open('sql/schema.sql', 'r') as f:
+    schema_path = Path(__file__).parent / "sql" / "schema.sql"
+    with open(schema_path, 'r') as f:
         schema = f.read()
         conn.executescript(schema)
 
@@ -24,61 +23,77 @@ def create_database():
 def load_energy_data():
     conn = sqlite3.connect(DB_PATH)
 
-    csv_file = Path(RAW_DATA_PATH) / "owid-energy-data.csv"
+    csv_file = RAW_CSV_PATH
     df = pd.read_csv(csv_file)
 
-    countries = ['BEL', 'FRA', 'NLD', 'DEU', 'POL', 'ESP', 'ITA', 'SWE']
-    df = df[df['iso_code'].isin(countries)]
-    df = df[df['year'] >= 2020]
+    df = df[df['iso_code'].isin(COUNTRIES)]
+    df = df[(df['year'] >= START_YEAR) & (df['year'] <= END_YEAR)]
 
     print(f"Loading {len(df)} rows")
 
-    for _, row in df.iterrows():
-        country = row['iso_code']
-        year = int(row['year'])
+    # energy_consumption: skip rows where primary_energy_consumption is NaN
+    df_consumption = (
+        df.loc[df['primary_energy_consumption'].notna(),
+               ['iso_code', 'year', 'primary_energy_consumption']]
+        .rename(columns={
+            'iso_code': 'country_code',
+            'primary_energy_consumption': 'total_consumption_twh',
+        })
+    )
 
-        if pd.notna(row.get('primary_energy_consumption')):
-            conn.execute("""
-                INSERT INTO energy_consumption (country_code, year, total_consumption_twh)
-                VALUES (?, ?, ?)
-            """, (country, year, row['primary_energy_consumption']))
+    # renewable_energy: one row per country/year
+    df_renewable = (
+        df[['iso_code', 'year', 'renewables_share_energy',
+            'solar_electricity', 'wind_electricity', 'hydro_electricity']]
+        .rename(columns={
+            'iso_code': 'country_code',
+            'renewables_share_energy': 'renewable_percentage',
+            'solar_electricity': 'solar_electricity_twh',
+            'wind_electricity': 'wind_electricity_twh',
+            'hydro_electricity': 'hydro_electricity_twh',
+        })
+    )
 
-        conn.execute("""
-            INSERT INTO renewable_energy 
-            (country_code, year, renewable_percentage, solar_electricity_twh, wind_electricity_twh, hydro_electricity_twh)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (
-            country,
-            year,
-            row.get('renewables_share_energy'),
-            row.get('solar_electricity'),
-            row.get('wind_electricity'),
-            row.get('hydro_electricity')
-        ))
+    # energy_production: melt wide-long, drop NaN/zero rows, compute percentage
+    source_cols = {
+        'Coal': 'coal_electricity',
+        'Natural Gas': 'gas_electricity',
+        'Oil': 'oil_electricity',
+        'Nuclear': 'nuclear_electricity',
+        'Solar': 'solar_electricity',
+        'Wind': 'wind_electricity',
+        'Hydro': 'hydro_electricity',
+        'Biomass': 'biofuel_electricity',
+    }
+    df_long = df[
+        ['iso_code', 'year', 'electricity_generation'] + list(source_cols.values())
+    ].melt(
+        id_vars=['iso_code', 'year', 'electricity_generation'],
+        value_vars=list(source_cols.values()),
+        var_name='source_col',
+        value_name='production_twh',
+    )
+    df_long['energy_source'] = df_long['source_col'].map({v: k for k, v in source_cols.items()})
+    df_long = df_long[df_long['production_twh'].notna() & (df_long['production_twh'] > 0)].copy()
+    total = df_long['electricity_generation']
+    df_long['percentage_of_total'] = (
+        (df_long['production_twh'] / total.where(total > 0) * 100).fillna(0)
+    )
+    df_production = (
+        df_long[['iso_code', 'year', 'energy_source', 'production_twh', 'percentage_of_total']]
+        .rename(columns={'iso_code': 'country_code'})
+    )
 
-        total_elec = row.get('electricity_generation', 0)
+    with conn:
+        df_consumption.to_sql('energy_consumption', conn, if_exists='append', index=False)
+        df_renewable.to_sql('renewable_energy', conn, if_exists='append', index=False)
+        df_production.to_sql('energy_production', conn, if_exists='append', index=False)
 
-        sources = {
-            'Coal': row.get('coal_electricity'),
-            'Natural Gas': row.get('gas_electricity'),
-            'Oil': row.get('oil_electricity'),
-            'Nuclear': row.get('nuclear_electricity'),
-            'Solar': row.get('solar_electricity'),
-            'Wind': row.get('wind_electricity'),
-            'Hydro': row.get('hydro_electricity'),
-            'Biomass': row.get('biofuel_electricity')
-        }
+    expected_counts = {"countries": 8, "energy_consumption": 40, "renewable_energy": 40}
+    for table, expected in expected_counts.items():
+        actual = pd.read_sql(f"SELECT COUNT(*) as n FROM {table}", conn).iloc[0, 0]
+        assert actual == expected, f"{table}: expected {expected} rows, got {actual}"
 
-        for source, value in sources.items():
-            if pd.notna(value) and value > 0:
-                percentage = (value / total_elec * 100) if total_elec > 0 else 0
-                conn.execute("""
-                    INSERT INTO energy_production 
-                    (country_code, year, energy_source, production_twh, percentage_of_total)
-                    VALUES (?, ?, ?, ?, ?)
-                """, (country, year, source, value, percentage))
-
-    conn.commit()
     conn.close()
     print("Data loaded")
 

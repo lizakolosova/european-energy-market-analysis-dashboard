@@ -6,6 +6,8 @@
 [![SQL](https://img.shields.io/badge/SQL-SQLite-orange.svg)](https://www.sqlite.org/)
 [![Data](https://img.shields.io/badge/Data-OWID-green.svg)](https://github.com/owid/energy-data)
 
+> A SQL-driven analysis of European energy markets (8 countries, 2020–2024) with a tested ETL load and an interactive Streamlit dashboard.
+
 ## Project Overview
 
 This project analyzes European energy markets to identify trends in renewable adoption, fossil fuel reduction, and progress toward 2030 climate targets. Built as a portfolio demonstration of SQL, data analysis, and business insight generation skills.
@@ -26,22 +28,24 @@ This project analyzes European energy markets to identify trends in renewable ad
 
 ## Key Insights
 
-### 1. Netherlands Leading Fossil Fuel Reduction
-- 29.5% reduction in fossil fuel dependency (2020-2023)
-- Largest decrease among Western European countries
+### 1. Netherlands Led the Fastest Fossil Fuel Exit
 
-### 2. Germany Dominates Renewable Production
-- 222.6 TWh renewable electricity (2023)
-- 3x more than any neighboring country
+Netherlands cut its fossil fuel share from 69.8% (2020) to 49.2% (2023) — a 20.6 percentage-point
+reduction, the largest among the 8 countries. Belgium came second in relative terms (−23%), while
+Germany's fossil share was essentially unchanged (44.3% → 44.2%) despite its large absolute renewable
+capacity.
 
-### 3. All Countries Behind 2030 Targets
-- Belgium: Current 11.5%, Target 42.5% → Projected to reach only 7.3%
-- Germany: Current 24.0%, Target 50.0% → Projected to reach only 26.2%
+### 2. Germany Dominates Renewable Output; Netherlands Leads Per Capita
 
-### 4. Belgium Renewable Opportunity
-- Lowest renewable % among Western European neighbors
-- 3rd place in per-capita renewable capacity (out of 4)
-- Significant growth potential in solar and wind
+Germany generated 222.6 TWh of renewable electricity in 2023 — roughly 3× more than any neighbor
+in absolute terms. Per-capita the ranking flips: Netherlands leads at 2.82 TWh/million people,
+Germany second (2.42), Belgium third (2.01). France sits last at 1.04 due to heavy nuclear dependence.
+
+### 3. No Country Is On Track for 2030
+
+Belgium's renewable share is declining (−0.7% annually) while it needs +5.2%/year to reach its
+42.5% target — projecting to just 7.3% by 2030. Germany (current 24%, target 50%) projects to
+26.2%. All 8 countries in the dataset are classified BEHIND at current growth rates.
 
 [Full analysis with business implications →](docs/KEY_INSIGHTS.md)
 
@@ -124,43 +128,47 @@ Projects whether countries will meet renewable energy targets.
 
 ## Getting Started
 
+**Data source:** [Our World in Data — Energy Dataset](https://github.com/owid/energy-data), aggregated from the Energy Institute Statistical Review, Ember, and Eurostat. The raw CSV is not stored in this repo and must be downloaded before loading the database.
+
 ### Prerequisites
 - Python 3.9+
-- SQLite3
 
 ### Installation
 
 ```bash
-# Clone repository
 git clone https://github.com/lizakolosova/european-energy-market-analysis-dashboard.git
-cd european-energy-analysis
-
-# Create virtual environment
+cd european-energy-market-analysis-dashboard
 python -m venv venv
-source venv/bin/activate
-
-# Install dependencies
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-# Load data
+# Download raw data (~7 MB CSV)
+python scripts/download_data.py
+
+# Build the database
 python load_data.py
+
+# Verify the load
+pytest tests/
+
+# Launch the dashboard
+streamlit run dashboard.py
 ```
 
 ### Run Analysis
 
 ```bash
-# Run all queries
 python run_queries.py
 ```
 
 ## Skills Demonstrated
 
-- SQL query writing (CTEs, JOINs, window functions, aggregations)
-- Database design and normalization
-- ETL pipeline development (Python + pandas)
-- Business insight generation from data
-- Data visualization and reporting
-- Working with real-world datasets (OWID)
+- SQL analysis: CTEs, window functions (RANK, LAG), conditional aggregation across 5 business questions
+- Data quality testing with pytest: 10 assertions covering row counts, FK integrity, and value ranges
+- Configuration management: single source of truth for all constants, paths, and targets
+- Interactive dashboards with Streamlit and Plotly
+- Reproducible setup: automated data download, deterministic DB load, tests that verify the result
+- Working with real-world public datasets (Our World in Data)
 
 ## Use Cases
 
@@ -176,14 +184,6 @@ Data sourced from [Our World in Data - Energy Dataset](https://github.com/owid/e
 - Energy Institute Statistical Review
 - Ember Yearly Electricity Data
 - Eurostat
-  (download the owid-energy-data.csv and put it in data/raw/ folder before running the project.)
 
 **Coverage**: 8 EU countries, 2020-2024, 40 data points, 299 production records
 
-## Future Enhancements
-
-- [ ] Add electricity price analysis (Eurostat API)
-- [ ] Include seasonal patterns (monthly data)
-- [ ] Add machine learning forecasting (Prophet/ARIMA)
-- [ ] Expand to all 27 EU countries
-- [ ] Include energy storage capacity data
