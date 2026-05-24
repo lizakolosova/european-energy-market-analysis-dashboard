@@ -5,7 +5,7 @@ from pathlib import Path
 
 import requests
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from config import RAW_CSV_PATH
 
 URL = "https://raw.githubusercontent.com/owid/energy-data/master/owid-energy-data.csv"

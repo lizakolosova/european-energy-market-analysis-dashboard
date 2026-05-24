@@ -10,7 +10,7 @@ DB_PATH = PROJECT_ROOT / "data" / "energy.db"
 @pytest.fixture(scope="module")
 def db():
     assert DB_PATH.exists(), (
-        f"Database not found at {DB_PATH}. Run `python load_data.py` first."
+        f"Database not found at {DB_PATH}. Run `python src/load_data.py` first."
     )
     conn = sqlite3.connect(str(DB_PATH))
     yield conn
