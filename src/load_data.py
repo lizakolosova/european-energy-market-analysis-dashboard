@@ -11,7 +11,7 @@ def create_database():
 
     conn = sqlite3.connect(DB_PATH)
 
-    schema_path = Path(__file__).parent / "sql" / "schema.sql"
+    schema_path = Path(__file__).parent.parent / "sql" / "schema.sql"
     with open(schema_path, 'r') as f:
         schema = f.read()
         conn.executescript(schema)

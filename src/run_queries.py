@@ -13,8 +13,10 @@ queries = [
     ('05_2030_targets_tracking.sql', '2030 Renewable Targets Progress')
 ]
 
+_ROOT = Path(__file__).parent.parent
+
 for filename, title in queries:
-    filepath = Path('sql/queries') / filename
+    filepath = _ROOT / 'sql' / 'queries' / filename
 
     if not filepath.exists():
         print(f"Skipping {filename} - file not found")
@@ -31,13 +33,13 @@ for filename, title in queries:
         result = pd.read_sql(sql, conn)
         print(result.to_string(index=False))
 
-        output_file = f"sql/results/results_{filename.replace('.sql', '.txt')}"
+        output_file = _ROOT / 'sql' / 'results' / f"results_{filename.replace('.sql', '.txt')}"
         with open(output_file, 'w', encoding='utf-8') as out:
             out.write(f"{title}\n")
             out.write("=" * 70 + "\n\n")
             out.write(result.to_string(index=False))
 
-        print(f"\nSaved to: {output_file}")
+        print(f"\nSaved to: {output_file.relative_to(_ROOT)}")
 
     except Exception as e:
         print(f"Error: {e}")

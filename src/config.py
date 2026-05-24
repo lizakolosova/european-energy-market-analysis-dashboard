@@ -4,8 +4,8 @@ COUNTRIES = ["BEL", "FRA", "NLD", "DEU", "POL", "ESP", "ITA", "SWE"]
 START_YEAR = 2020
 END_YEAR = 2024
 TARGET_YEAR = 2030
-DB_PATH = Path(__file__).parent / "data" / "energy.db"
-RAW_CSV_PATH = Path(__file__).parent / "data" / "raw" / "owid-energy-data.csv"
+DB_PATH = Path(__file__).parent.parent / "data" / "energy.db"
+RAW_CSV_PATH = Path(__file__).parent.parent / "data" / "raw" / "owid-energy-data.csv"
 
 # Per-country 2030 renewable energy targets (% of primary energy from renewables).
 # Source: EU Fit for 55 package + national energy and climate plans (NECPs).
