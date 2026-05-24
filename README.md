@@ -146,19 +146,19 @@ pip install -r requirements.txt
 python scripts/download_data.py
 
 # Build the database
-python load_data.py
+python src/load_data.py
 
 # Verify the load
 pytest tests/
 
 # Launch the dashboard
-streamlit run dashboard.py
+streamlit run src/dashboard.py
 ```
 
 ### Run Analysis
 
 ```bash
-python run_queries.py
+python src/run_queries.py
 ```
 
 ## Skills Demonstrated

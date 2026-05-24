@@ -2,11 +2,11 @@ Fossil Fuel Reduction (2020-2023)
 ======================================================================
 
 country_name  fossil_pct_2020  fossil_pct_2023  reduction_points  pct_reduction
- Netherlands            69.81            49.22             20.59          29.50
-      Poland            82.04            72.76              9.27          11.30
-     Belgium            34.44            26.46              7.98          23.17
-       Spain            33.68            28.04              5.64          16.74
-       Italy            57.77            55.46              2.31           4.00
-      France             9.18             7.94              1.23          13.44
-     Germany            44.27            44.15              0.11           0.25
-      Sweden             1.49             1.40              0.09           5.72
+ Netherlands            69.81            49.29             20.52          29.39
+      Poland            82.04            72.29              9.74          11.88
+     Belgium            34.44            26.47              7.97          23.15
+       Spain            33.68            28.11              5.57          16.53
+       Italy            57.77            55.45              2.32           4.01
+      France             9.18             7.92              1.26          13.76
+     Germany            44.27            43.89              0.38           0.85
+      Sweden             1.49             1.40              0.09           5.81
